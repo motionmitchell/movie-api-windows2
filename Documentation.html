@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Api</title>
+	<script>
+		var GC_MOVIES=null;
+		function pageLoad ()
+		{
+			getMovies();
+		}
+		function queryClick ()
+		{
+		
+		}
+		function getMoviesByName ()
+		{
+			const name= document.getElementById("queryValue").value;
+			const url = "http://localhost:8080/movie/name/"+name;
+			getMovies (url);
+		}
+		function getMoviesByGenre ()
+		{
+			const genre= document.getElementById("queryValue").value;
+			const url = "http://localhost:8080/movies/genre/"+genre;
+			getMovies (url);
+		}
+		function getMoviesByGenreAndDirector ()
+		{
+			const genre= document.getElementById("queryValue").value;
+			const director= document.getElementById("director").value;
+			const url = "http://localhost:8080/movies/gd/"+genre+"/"+director;
+			getMovies (url);
+		}
+		function getMovies(url)
+		{
+			//const url = 'http://localhost:8080/movies';
+			fetch(url, {
+					"method": "GET",
+			})
+			.then(function(response) {
+				//console.log(response);
+				return response.json();
+			}).then(function(data) {
+				GC_MOVIES=data;
+				console.log(data);
+				displayMovies();
+			}).catch(err => {
+				console.log(err);
+            });
+		}
+		function displayMovies ()
+		{
+			let c = "<ol>";
+			GC_MOVIES.forEach ((row, idx)=>{
+				let r = `<li><a href='javascript:editMovie(${idx})'>${row.description}</a></li>`;
+				c+=r;
+			});
+			document.getElementById ("divContent").innerHTML = c+"</ol>";
+		}
+		var GC_MOVIES_IDX=0;
+		function editMovie(idx)
+		{
+			GC_MOVIES_IDX=idx;
+			//alert (GC_MOVIES[idx].description);
+			document.getElementById("movieName").value = GC_MOVIES[idx].description;
+			document.getElementById("movieName").value = GC_MOVIES[idx].description;
+			document.getElementById("dirName").value = GC_MOVIES[idx].director.name;
+		}
+		function updateMovieName()
+		{
+			const name= document.getElementById("movieName").value;
+			const url = "http://localhost:8080/movie/update/"+GC_MOVIES[GC_MOVIES_IDX].id+"/"+name;
+			callServer (url);
+		}
+		function updateDirBio()
+		{
+			const bio= document.getElementById("dirBio").value;
+			const url = "http://localhost:8080/movie/updateBio/"+GC_MOVIES[GC_MOVIES_IDX].director.id+"/"+bio;
+			callServer (url);
+		}
+		function addToFavorites()
+		{
+			const un = prompt ("User Name: ");
+			
+			const url = "http://localhost:8080/user/movie/add/"+un+"/"+GC_MOVIES[GC_MOVIES_IDX].id;
+			//alert(url);
+			callServer (url);
+		}
+		function deleteUser()
+		{
+			const un = prompt ("User Name: ");
+			
+			const url = "http://localhost:8080/user/delete/"+un;
+			//alert(url);
+			callServer (url);
+		}
+		function callServer (url)
+		{
+			fetch(url, {
+					"method": "GET",
+			})
+			.then(function(response) {
+				//console.log(response);
+				alert(response);
+			});
+		}
+	</script>
+</head>
+<body>
+    <h1>
+       MyFlix
+    </h1>
+	<p><input type='text' id='queryValue'/><p>
+	<p>Director:<input type='text' id='director'/><p>
+	<p><button onClick='getMoviesByName()'>Find by Name</button>
+	<p><button onClick='getMoviesByGenre()'>Find by Genre</button>
+	<p><button onClick='getMoviesByGenreAndDirector()'>Find by Genre and Director</button>
+	<p><button onClick='deleteUser()'>Delete User By Name</button>
+    <p> This is a list of all my favorite movies. This Api is a list of my top movies of all time. </p>
+	<div id='divContent'>
+	
+	</div>
+	<div id='divMovie'>
+		<p>Movie Name: <input type='text' id='movieName'/></p>
+		<p>Director: <input type='text' id='dirName'/></p>
+		<p>Bio: <input type='text' id='dirBio'/></p>
+		<p><button onClick='updateMovieName()'>Update Movie Name</button>
+		<p><button onClick='updateDirBio()'>Update Director BIO</button>
+		<p><button onClick='addToFavorites()'>Add To Favorites</button>
+	</div>
+</body>
+</html>
